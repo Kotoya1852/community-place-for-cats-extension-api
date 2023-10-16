@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: 猫の集会場拡張API
+  version: 1.0.0
+  description: ボットだけでは賄えない、痒い所に手が届くAPI
+paths:
+  /api/auth:
+    post:
+      operationId: authenticationPost
+      description: トークン生成API
+      summary: トークン生成API
+      parameters:
+      - in: query
+        name: user_id
+        schema:
+          type: string
+        description: discordユーザーID
+      tags:
+      - 認証認可API
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthPostRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthPostRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthPostRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthPostResponse'
+          description: トークン作成成功
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: 入力値エラー
+        '500':
+          description: システムエラー
+components:
+  schemas:
+    AuthPostRequest:
+      type: object
+      description: トークン生成リクエストシリアライザー
+      properties:
+        user_id:
+          type: integer
+          maximum: 999999999999999999
+          minimum: 100000000000000000
+          format: int64
+      required:
+      - user_id
+    AuthPostResponse:
+      type: object
+      description: トークン生成レスポンスシリアライザー
+      properties:
+        token:
+          type: string
+          format: uuid
+      required:
+      - token
+    MessageResponse:
+      type: object
+      description: レスポンスに含めるメッセージのシリアライザー
+      properties:
+        message_id:
+          type: string
+          nullable: true
+          maxLength: 10
+        message:
+          type: string
+          nullable: true
+          maxLength: 256
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
