@@ -2,25 +2,25 @@ from uuid import UUID
 from .models import DiscordAuthenticationToken, DiscordMemberMaster
 
 
-def create_token(user_id: int) -> UUID:
+def create_token(user: DiscordMemberMaster) -> UUID:
     """
     指定されたユーザーIDのトークンを作成し、返却します。
 
     Args:
-        user_id: discordユーザーID
+        user: discordユーザー
     """
-    token = DiscordAuthenticationToken.objects.create(user_id=user_id)
+    token = DiscordAuthenticationToken.objects.create(user=user)
     return token.token
 
 
-def delete_token(user_id: int):
+def delete_token(user: DiscordMemberMaster):
     """
     指定されたユーザーIDのトークンを全て削除します。
 
     Args:
-        user_id: discordユーザーID
+        user: discordユーザー
     """
-    tokens = DiscordAuthenticationToken.objects.filter(user_id=user_id)
+    tokens = DiscordAuthenticationToken.objects.filter(user=user)
     tokens.delete()
 
 

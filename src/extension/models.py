@@ -25,10 +25,10 @@ class DiscordAuthenticationToken(models.Model):
     discord認証トークン
     """
 
-    user_id = models.OneToOneField(
-        DiscordMemberMaster, on_delete=models.CASCADE, to_field="user_id", primary_key=True, name="user"
+    user = models.OneToOneField(
+        DiscordMemberMaster, on_delete=models.CASCADE, to_field="member_id", primary_key=True, name="user"
     )
-    """ ユーザID """
+    """ メンバーID """
     token = models.UUIDField(verbose_name="トークン", name="token", default=uuid.uuid4())
     """ トークン """
     generate_date_time = models.DateTimeField(verbose_name="トークン生成日時", name="generate_date_time", default=timezone.now)

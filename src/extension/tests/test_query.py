@@ -3,17 +3,6 @@ from django.test import TestCase
 from .. import const, commands, query, models
 
 
-class GetUserByUserIdTest(TestCase):
-    """ユーザーIDからユーザー情報を取得するテスト"""
-
-    def test_success(self):
-        commands.create_user(100000000000000000, 100000000000000000, "テスト")
-
-        user = query.get_user_by_user_id(100000000000000000)
-
-        self.assertEqual(user.count(), 1)
-
-
 class GetUserByUserIdAndServerId(TestCase):
     """サーバーIDとユーザーIDからユーザー情報を取得するテスト"""
 
@@ -31,12 +20,13 @@ class GetToken(TestCase):
 
     def test_success(self):
         commands.create_user(100000000000000000, 100000000000000000, "テスト")
-        create_token = commands.create_token(100000000000000000)
+        user = query.get_user_by_user_id_and_server_id(100000000000000000, 100000000000000000)
+        create_token = commands.create_token(user)
 
-        token = query.get_token(100000000000000000)
+        token = query.get_token(user)
 
         self.assertEqual(token.token, create_token)
-        self.assertEqual(token.user_id, 100000000000000000)
+        self.assertEqual(token.user.user_id, 100000000000000000)
 
 
 class GetExtensionValue(TestCase):

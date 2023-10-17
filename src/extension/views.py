@@ -48,19 +48,19 @@ class AuthViews(APIView):
         param = serialize.save()
 
         # メンバー存在チェック
-        users = query.get_user_by_user_id(param.user_id)
-        if users.count() == 0:
+        user = query.get_user_by_user_id_and_server_id(param.user_id, param.server_id)
+        if user is None:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST, data=utils.message_response_deserialize(message="ユーザーが存在しません")
             )
 
         # トークン確認
-        now_token = query.get_token(param.user_id)
+        now_token = query.get_token(user)
         token = None
         response_status_code = status.HTTP_201_CREATED
         if now_token is None:
             # トークンが存在しない
-            token = commands.create_token(param.user_id)
+            token = commands.create_token(user)
         else:
             # トークン有効時間（分）を取得 ※取得出来なかった場合、デフォルト60分を設定
             expired_token_minute_str = query.get_extension_value(EXPIRED_TOKEN_EXTENSION_ID)
@@ -78,8 +78,8 @@ class AuthViews(APIView):
                 response_status_code = status.HTTP_200_OK
             else:
                 # 期限が切れている（作り直し）
-                commands.delete_token(param.user_id)
-                token = commands.create_token(param.user_id)
+                commands.delete_token(user)
+                token = commands.create_token(user)
 
         response_serializer = auth_serializer.AuthPostResponseSerializer(data={"token": token})
         response_serializer.is_valid()
