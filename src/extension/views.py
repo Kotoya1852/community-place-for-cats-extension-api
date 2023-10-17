@@ -57,6 +57,7 @@ class AuthViews(APIView):
         # トークン確認
         now_token = query.get_token(param.user_id)
         token = None
+        response_status_code = status.HTTP_201_CREATED
         if now_token is None:
             # トークンが存在しない
             token = commands.create_token(param.user_id)
@@ -74,6 +75,7 @@ class AuthViews(APIView):
             if expired_token_datetime >= timezone.now():
                 # 期限が切れていない（既存のトークンをレスポンス）
                 token = now_token.token
+                response_status_code = status.HTTP_200_OK
             else:
                 # 期限が切れている（作り直し）
                 commands.delete_token(param.user_id)
@@ -81,7 +83,7 @@ class AuthViews(APIView):
 
         response_serializer = auth_serializer.AuthPostResponseSerializer(data={"token": token})
         response_serializer.is_valid()
-        return Response(status=status.HTTP_201_CREATED, data=response_serializer.data)
+        return Response(status=response_status_code, data=response_serializer.data)
 
 
 @extend_schema(tags=["discordメンバー管理API"])
@@ -158,7 +160,9 @@ class MemberViews(APIView):
         user = query.get_user_by_user_id_and_server_id(param.user_id, param.server_id)
         if user is None:
             # 存在しない
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=utils.message_response_deserialize())
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST, data=utils.message_response_deserialize(message="未登録です")
+            )
 
         # ユーザー削除
         user.delete()

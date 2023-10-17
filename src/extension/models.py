@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-import datetime
+from django.utils import timezone
 
 
 class DiscordMemberMaster(models.Model):
@@ -31,9 +31,7 @@ class DiscordAuthenticationToken(models.Model):
     """ ユーザID """
     token = models.UUIDField(verbose_name="トークン", name="token", default=uuid.uuid4())
     """ トークン """
-    generate_date_time = models.DateTimeField(
-        verbose_name="トークン生成日時", name="generate_date_time", default=datetime.datetime.now()
-    )
+    generate_date_time = models.DateTimeField(verbose_name="トークン生成日時", name="generate_date_time", default=timezone.now)
     """ トークン生成日時 """
 
     class Meta:
